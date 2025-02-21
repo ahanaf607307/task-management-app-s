@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(cors());
 // MONGODB STARTS
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASSWORD}@cluster0.zpuvg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -37,7 +37,6 @@ app.post('/jwt' , async(req, res) => {
   const token = jwt.sign(user, process.env.JWT_TOKEN , 
     {expiresIn: "365d",
   })
-  console.log(token)
 res.send(token)
 })
 
@@ -77,6 +76,24 @@ app.post('/users' , async(req,res) => {
 app.post('/task' ,verifyToken, async(req, res) => {
   const task = req.body
   const result = await tasksCollection.insertOne(task)
+  res.send(result)
+})
+
+// Get Speacipic User Task using email 
+app.get('/task-email' , async(req,res) => {
+ const email = req.query.email
+ const query = {userEmail : email}
+ const result = await tasksCollection.find(query).toArray()
+ console.log(result)
+ res.send(result)
+})
+
+// Delete Speacipic User Task using email 
+
+app.delete('/task-delete/:id' , async (req, res) => {
+  const id = req.params.id
+  const filter = {_id : new ObjectId(id)}
+  const result = await tasksCollection.deleteOne(filter)
   res.send(result)
 })
 
