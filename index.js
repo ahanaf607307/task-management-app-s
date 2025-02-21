@@ -74,14 +74,14 @@ async function run() {
     });
 
     // Get  Speacipic User All Task using email
-    app.get("/task-email", async (req, res) => {
+    app.get("/task-email",verifyToken, async (req, res) => {
       const email = req.query.email;
       const query = { userEmail: email };
       const result = await tasksCollection.find(query).toArray();
       res.send(result);
     });
     // Get Speacipic User Task using email
-    app.get("/task-id/:id", async (req, res) => {
+    app.get("/task-id/:id",verifyToken, async (req, res) => {
       const id = req.params.id
      
       const filter = {_id : new ObjectId(id)}
@@ -113,9 +113,32 @@ async function run() {
       res.send(result);
     });
 
+    // React DND Status Update Patch Api
+
+    app.patch("/task-status/:id", verifyToken, async (req, res) => {
+      const taskId = req.params.id;
+      const { status } = req.body;
+    
+      try {
+        const filter = { _id: new ObjectId(taskId) };
+        const updateDoc = {
+          $set: {
+            status: status,
+          },
+        };
+    
+        const result = await tasksCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      } catch (error) {
+        console.error("Error updating task status:", error);
+        res.status(500).send({ message: "Failed to update task status" });
+      }
+    });
+    
+
     // Delete Speacipic User Task using email
 
-    app.delete("/task-delete/:id", async (req, res) => {
+    app.delete("/task-delete/:id",verifyToken, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const result = await tasksCollection.deleteOne(filter);
