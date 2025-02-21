@@ -12,7 +12,7 @@ app.use(cors());
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASSWORD}@cluster0.zpuvg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -67,21 +67,21 @@ async function run() {
     });
 
     // Add Task Collections
-    app.post("/task", verifyToken, async (req, res) => {
+    app.post("/tasks", verifyToken, async (req, res) => {
       const task = req.body;
       const result = await tasksCollection.insertOne(task);
       res.send(result);
     });
 
     // Get  Speacipic User All Task using email
-    app.get("/task-email",verifyToken, async (req, res) => {
+    app.get("/tasks",verifyToken, async (req, res) => {
       const email = req.query.email;
       const query = { userEmail: email };
       const result = await tasksCollection.find(query).toArray();
       res.send(result);
     });
     // Get Speacipic User Task using email
-    app.get("/task-id/:id",verifyToken, async (req, res) => {
+    app.get("/tasks/:id",verifyToken, async (req, res) => {
       const id = req.params.id
      
       const filter = {_id : new ObjectId(id)}
@@ -91,7 +91,7 @@ async function run() {
 
     // Update Speacipic User Task Patch 
 
-     app.patch("/task-update/:id", verifyToken, async (req, res) => {
+     app.put("/tasks/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       console.log(id)
       const filter = { _id: new ObjectId(id) };
@@ -113,9 +113,9 @@ async function run() {
       res.send(result);
     });
 
-    // React DND Status Update Patch Api
+    // React DND Status Update Patch Api-
 
-    app.patch("/task-status/:id", verifyToken, async (req, res) => {
+    app.patch("/tasks/:id", verifyToken, async (req, res) => {
       const taskId = req.params.id;
       const { status } = req.body;
     
@@ -138,7 +138,7 @@ async function run() {
 
     // Delete Speacipic User Task using email
 
-    app.delete("/task-delete/:id",verifyToken, async (req, res) => {
+    app.delete("/tasks/:id",verifyToken, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const result = await tasksCollection.deleteOne(filter);
@@ -153,7 +153,7 @@ run().catch(console.dir);
 
 // MONGODB ENDS
 
-app.get("/", (res) => {
+app.use("/", (req,res) => {
   res.send("Task Managment Server is running");
 });
 app.listen(port, () => {
